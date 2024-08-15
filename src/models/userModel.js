@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { UserRole, Gender } = require("../config/enums");
 const slugify = require("../utils/slugify");
+const dbService = require("../utils/dbServices");
 
 const generateUniqueNumber = () => {
   const timestampPart = Date.now().toString().slice(-4);
@@ -74,26 +75,6 @@ userSchema.pre("validate", function (next) {
   next();
 });
 
-userSchema.methods.isPasswordMatch = async function (password) {
-  return await bcrypt.compare(password, this.password);
-};
-
-userSchema.methods.generateAccessToken = function () {
-  return jwt.sign({ id: this._id, role: this.role }, process.env.JWT_SECRET, {
-    expiresIn: "15m",
-  });
-};
-
-userSchema.methods.generateRefreshToken = function () {
-  return jwt.sign(
-    { id: this._id, role: this.role },
-    process.env.JWT_REFRESH_SECRET,
-    {
-      expiresIn: "7d",
-    }
-  );
-};
-
 userSchema.method("toJSON", function () {
   const { _id, __v, ...object } = this.toObject({ virtuals: true });
   delete object.password;
@@ -102,5 +83,5 @@ userSchema.method("toJSON", function () {
 });
 
 const UserModel = mongoose.model("User", userSchema);
-
-module.exports = UserModel;
+const userServices = dbService(UserModel);
+module.exports = { UserModel, userServices };

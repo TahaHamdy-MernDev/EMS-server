@@ -1,7 +1,5 @@
 const asyncHandler = require("../handlers/asyncHandler");
-const userServices = require("../utils/dbServices")(
-  require("../models/userModel")
-);
+const { userServices } = require("../models/userModel");
 exports.createUser = asyncHandler(async (req, res) => {
   const existingUser = await userServices.findOne({
     $or: [{ phone: req.body.phone }, { email: req.body.email }],

@@ -1,37 +1,45 @@
 const asyncHandler = require("../handlers/asyncHandler");
-const { saveRefreshToken } = require("../utils/refreshToken");
+const { userServices } = require("../models/userModel");
+const {
+  saveRefreshToken,
+  generateAccessToken,
+  generateRefreshToken,
+} = require("../utils/tokens");
 const refreshTokenService = require("../utils/dbServices")(
   require("../models/refreshTokensModel")
 );
-const userService = require("../utils/dbServices")(
-  require("../models/userModel")
-);
+const bcrypt = require("bcrypt");
 exports.register = asyncHandler(async (req, res) => {
-  const { phone } = req.body;
   const userData = { ...req.body };
-  const existingUser = await userService.findOne({ phone });
+  const existingUser = await userServices.findOne({
+    $or: [{ phone: req.body.phone }, { email: req.body.email }],
+  });
+
   if (existingUser) {
-    return res.badRequest({
-      message: "this phone number already exist...",
+    return res.conflict({
+      message:
+        existingUser.phone === req.body.phone
+          ? "Phone number already in use"
+          : "Email address already in use",
     });
   }
-  await userService.create(userData);
+  await userServices.create(userData);
   return res.success();
 });
 exports.login = asyncHandler(async (req, res) => {
   const { phone, password } = req.body;
-  const user = await userService.findOne({ phone });
+  const user = await userServices.findOne({ phone });
 
   if (!user) {
     return res.badRequest({ message: "Wrong phone number or password." });
   }
-  const isMatch = await user.isPasswordMatch(password);
+  const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
     return res.badRequest({ message: "Wrong phone number or password." });
   }
 
-  const accessToken = await user.generateAccessToken();
-  const refreshToken = await user.generateRefreshToken();
+  const accessToken = await generateAccessToken(user);
+  const refreshToken = await generateRefreshToken(user);
 
   await saveRefreshToken(user._id, refreshToken);
 
@@ -62,7 +70,7 @@ exports.refreshToken = asyncHandler(async (req, res) => {
       message: "The refresh token is invalid or expired. Please log in again.",
     });
   }
-  const user = await userService.findOne({ _id: storedToken.userId });
+  const user = await userServices.findOne({ _id: storedToken.userId });
   if (!user) {
     return res.forbidden({
       message: "The refresh token is invalid or expired. Please log in again.",

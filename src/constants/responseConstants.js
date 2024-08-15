@@ -28,7 +28,6 @@ const responseMessages = {
   validationError: "Invalid Data, Validation Failed.",
   unauthorized: "You are not authorized to access the request",
   forbidden:"You do not have the necessary permissions to access this resource.",
-  conflict: (field = "resource") =>
-    `The request could not be completed due to a conflict with the current state of the ${field}.`,
+  conflict: `The request could not be completed due to a conflict with the current state.`,
 };
 module.exports = { responseMessages, responseCode, responseStatus };

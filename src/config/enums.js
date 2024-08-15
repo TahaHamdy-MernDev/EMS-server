@@ -1,6 +1,7 @@
 const UserRole = Object.freeze({
   EMPLOYEE: "EMPLOYEE",
   ADMIN: "ADMIN",
+  SUPER_ADMIN: "SUPER_ADMIN",
 });
 
 const PermissionType = Object.freeze({
@@ -23,6 +24,7 @@ const EmployeeDayStatus = Object.freeze({
   NOT_STARTED: "NOT_STARTED",
   STARTED: "STARTED",
   CHECKED_OUT: "CHECKED_OUT",
+  CHECKED_IN: "CHECK_IN",
   DAY_COMPLETED: "DAY_COMPLETED",
   CHECKED_IN_NO_CHECKOUT: "CHECKED_IN_NO_CHECKOUT",
   OUT_SICK: "OUT_SICK",

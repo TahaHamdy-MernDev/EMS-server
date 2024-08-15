@@ -7,7 +7,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 app.use(responseHandler);
 app.use(morgan("dev"));
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+app.use(cors({ origin: process.env.CLIENT_URI, credentials: true }));
 app.use(
   session({
     secret: process.env.SESSION_SECRET_KEY,

@@ -46,7 +46,7 @@ const dbService = (model) => ({
    * @returns {Promise<Object>} The updated document.
    */
   updateOne: handleAsync(async (filter, data, options = { new: true }) => {
-    return await model.findOneAndUpdate(filter, data, options);
+    return await model.findOneAndUpdate(filter, data, options).lean().exec();
   }),
 
   /**
@@ -56,7 +56,7 @@ const dbService = (model) => ({
    * @returns {Promise<Object>} The deleted document.
    */
   deleteOne: handleAsync(async (filter, options = { new: true }) => {
-    return await model.findOneAndDelete(filter, options);
+    return await model.findOneAndDelete(filter, options).lean().exec();
   }),
 
   /**
@@ -66,7 +66,7 @@ const dbService = (model) => ({
    * @returns {Promise<number>} The number of documents modified.
    */
   updateMany: handleAsync(async (filter, data) => {
-    const result = await model.updateMany(filter, data);
+    const result = await model.updateMany(filter, data).lean().exec();
     return result.modifiedCount;
   }),
 
@@ -76,7 +76,7 @@ const dbService = (model) => ({
    * @returns {Promise<number>} The number of documents deleted.
    */
   deleteMany: handleAsync(async (filter) => {
-    const result = await model.deleteMany(filter);
+    const result = await model.deleteMany(filter).lean().exec();
     return result.deletedCount;
   }),
 
@@ -87,7 +87,7 @@ const dbService = (model) => ({
    * @returns {Promise<Object>} The found document.
    */
   findOne: handleAsync(async (filter, options = {}) => {
-    return await model.findOne(filter, options);
+    return await model.findOne(filter, options).lean().exec();
   }),
 
   /**
@@ -98,7 +98,7 @@ const dbService = (model) => ({
    */
   findMany: handleAsync(async (filter, options = {}) => {
     const { sort = { createdAt: -1 }, ...restOptions } = options;
-    return await model.find(filter, restOptions).sort(sort);
+    return await model.find(filter, restOptions).sort(sort).lean().exec();
   }),
 
   /**
@@ -107,7 +107,7 @@ const dbService = (model) => ({
    * @returns {Promise<number>} The count of matching documents.
    */
   count: handleAsync(async (filter) => {
-    return await model.countDocuments(filter);
+    return await model.countDocuments(filter).lean().exec();
   }),
 
   /**
@@ -117,7 +117,7 @@ const dbService = (model) => ({
    * @returns {Promise<Object>} Paginated result with documents and metadata.
    */
   paginate: handleAsync(async (filter, options) => {
-    return await model.paginate(filter, options);
+    return await model.paginate(filter, options).lean().exec();
   }),
 });
 

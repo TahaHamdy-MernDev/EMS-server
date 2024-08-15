@@ -26,10 +26,10 @@ const responseBody = {
     route: data.routeMessage,
     data: responseData(data.data),
   }),
-  conflict: (field, data = {}) => ({
+  conflict: (data = {}) => ({
     status: responseStatus.conflict,
     code: responseCode.conflict,
-    message: data.message || responseMessages.conflict(field),
+    message: data.message || responseMessages.conflict,
     data: responseData(data.data),
   }),
   validationError: (data = {}) => ({

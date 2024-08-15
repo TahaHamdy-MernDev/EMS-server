@@ -1,6 +1,32 @@
-// models/Attendance.js
 const mongoose = require("mongoose");
 const { EmployeeDayStatus } = require("../config/enums");
+const dbService = require("../utils/dbServices");
+const actionSchema = new mongoose.Schema(
+  {
+    type: {
+      type: String,
+      enum: Object.values(EmployeeDayStatus),
+      required: true,
+    },
+    time: { type: String },
+    location: {
+      type: {
+        type: String,
+        enum: ["Point"],
+        default: "Point",
+      },
+      coordinates: {
+        type: [Number],
+        default: [0, 0],
+      },
+    },
+    details: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
+    },
+  },
+  { timestamps: true, _id: false }
+);
 
 const attendanceSchema = new mongoose.Schema(
   {
@@ -9,31 +35,8 @@ const attendanceSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    date: { type: Date, required: true },
-    checkIn: { type: Date },
-    checkOut: { type: Date },
-    checkInLocation: {
-      type: {
-        type: String,
-        enum: ["Point"],
-        default: "Point",
-      },
-      coordinates: {
-        type: [Number],
-        default: [0, 0],
-      },
-    },
-    checkOutLocation: {
-      type: {
-        type: String,
-        enum: ["Point"],
-        default: "Point",
-      },
-      coordinates: {
-        type: [Number],
-        default: [0, 0],
-      },
-    },
+    date: { type: String, required: true },
+    actions: [actionSchema],
     status: {
       type: String,
       enum: Object.values(EmployeeDayStatus),
@@ -48,13 +51,34 @@ const attendanceSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-attendanceSchema.index({ checkInLocation: "2dsphere" });
-attendanceSchema.index({ checkOutLocation: "2dsphere" });
 
+attendanceSchema.index({ "actions.location": "2dsphere" });
 attendanceSchema.index({ user: 1, date: 1 }, { unique: true });
-
 const AttendanceModel = mongoose.model("Attendance", attendanceSchema);
-module.exports = AttendanceModel;
+const attendanceServices = dbService(AttendanceModel);
+module.exports = { AttendanceModel, attendanceServices };
+
+/**
+
+const attendance = await AttendanceModel.findOneAndUpdate(
+  { user: userId, date: today },
+  {
+    $push: {
+      actions: {
+        type: 'CHECK_IN',
+        timestamp: new Date(),
+        location: {
+          type: "Point",
+          coordinates: [longitude, latitude]
+        },
+        details: { mood: "excited" }
+      }
+    },
+    $set: { status: EmployeeDayStatus.STARTED }
+  },
+  { upsert: true, new: true }
+);
+*/
 
 /*
 const mongoose = require('mongoose');
