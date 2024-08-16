@@ -24,7 +24,7 @@ exports.register = asyncHandler(async (req, res) => {
     });
   }
   await userServices.create(userData);
-  return res.success();
+  return res.success() ;
 });
 exports.login = asyncHandler(async (req, res) => {
   const { phone, password } = req.body;
@@ -54,7 +54,7 @@ exports.login = asyncHandler(async (req, res) => {
 exports.refreshToken = asyncHandler(async (req, res) => {
   const { refreshToken } = req.cookies;
   if (!refreshToken) {
-    return res.unAuthorized({ message: "No refresh token provided" });
+    return res.unauthorized({ message: "No refresh token provided" });
   }
   const storedToken = await refreshTokenService.findOne({
     token: refreshToken,

@@ -36,6 +36,25 @@ exports.checkIn = asyncHandler(async (req, res) => {
 exports.checkOut = asyncHandler(async (req, res) => {
   const { userId, latitude, longitude } = req.body;
   const today = currentDayInEgypt();
+  const existingAttendance = await attendanceServices.findOne({
+    user: userId,
+    date: today,
+    "actions.type": EmployeeDayStatus.CHECKED_OUT,
+  });
+  if (existingAttendance) {
+    return res.badRequest({ message: "You have already checked out today" });
+  }
+  const attendance = await attendanceServices.findOne({
+    user: userId,
+    date: today,
+    "actions.type": EmployeeDayStatus.CHECKED_IN,
+  });
+
+  if (!attendance) {
+    return res.badRequest({
+      message: "You need to check in first before checking out",
+    });
+  }
   const filter = { user: userId, date: today };
   const data = {
     $push: {
@@ -50,13 +69,13 @@ exports.checkOut = asyncHandler(async (req, res) => {
     },
     $set: { status: EmployeeDayStatus.CHECKED_OUT },
   };
-  const attendance = await attendanceServices.updateOne(filter, data);
-  if (!attendance) {
+  const updatedAttendance = await attendanceServices.updateOne(filter, data);
+  if (!updatedAttendance) {
     return res.recordNotFound({
       message: "No check-in record found for today",
     });
   }
-  return res.success({ data: attendance });
+  return res.success({ data: updatedAttendance });
 });
 exports.getAttendance = asyncHandler(async (req, res) => {
   const { userId, date } = req.params;
@@ -74,7 +93,8 @@ exports.getAttendance = asyncHandler(async (req, res) => {
   return res.success({ data: attendance });
 });
 exports.recordAction = asyncHandler(async (req, res) => {
-  const { userId, actionType, latitude, longitude, details } = req.body;
+  const { actionType, latitude, longitude, details } = req.body;
+  const { userId } = req.user;
   const today = currentDayInEgypt();
   const filter = { user: userId, date: today };
   const data = {
@@ -90,5 +110,25 @@ exports.recordAction = asyncHandler(async (req, res) => {
       },
     },
   };
-  
+
+  const attendance = await attendanceServices.updateOne(filter, data);
+  if (!attendance) {
+    return res.recordNotFound({
+      message: "No attendance record found for today",
+    });
+  }
+  return res.success({ data: attendance });
+});
+exports.getAttendanceReport = asyncHandler(async (req, res) => {
+  const { startDate, endDate } = req.query;
+  const { userId } = req.user;
+  const filter = {
+    user: userId,
+    date: {
+      $gte: new Date(startDate),
+      $lte: new Date(endDate),
+    },
+  };
+  const attendances = await attendanceServices.find({ filter });
+  return res.success({ data: attendances });
 });

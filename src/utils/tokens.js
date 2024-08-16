@@ -15,10 +15,10 @@ async function saveRefreshToken(userId, token) {
 }
 async function generateAccessToken(user) {
   const accessToken = jwt.sign(
-    { id: user._id, role: user.role },
+    { userId: user._id, role: user.role },
     process.env.JWT_SECRET,
     {
-      expiresIn: "15m",
+      expiresIn: "30d",
     }
   );
   return accessToken;
@@ -26,7 +26,7 @@ async function generateAccessToken(user) {
 
 async function generateRefreshToken(user) {
   const refreshToken = jwt.sign(
-    { id: user._id, role: user.role },
+    { userId: user._id, role: user.role },
     process.env.JWT_REFRESH_SECRET,
     {
       expiresIn: "7d",

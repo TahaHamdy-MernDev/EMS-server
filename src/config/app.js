@@ -1,10 +1,10 @@
 const express = require("express");
 const app = express();
-const responseHandler = require("../handlers/responseHandler");
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const morgan = require("morgan");
+const responseHandler = require("node-response-handler");
 app.use(responseHandler);
 app.use(morgan("dev"));
 app.use(cors({ origin: process.env.CLIENT_URI, credentials: true }));

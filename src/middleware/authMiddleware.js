@@ -3,19 +3,21 @@ const asyncHandler = require("../handlers/asyncHandler");
 const { userServices } = require("../models/userModel");
 const { UserRole } = require("../config/enums");
 
-exports.authenticate = asyncHandler(async (req, res) => {
+const authenticate = asyncHandler(async (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith("Bearer ")) {
-    return res.unAuthorized({ message: "No token provided" });
+    return res.unauthorized({ message: "No token provided" });
   }
   const token = authHeader.split(" ")[1];
+  console.log(token);
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await userServices.findOne({ _id: decoded.id });
+    console.log(decoded);
+    const user = await userServices.findOne({ _id: decoded.userId });
     if (!user) {
-      return res.unAuthorized({ message: "User no longer exists" });
+      return res.unauthorized({ message: "User no longer exists" });
     }
-
+    console.log(user);
     req.user = user;
     next();
   } catch (error) {
@@ -23,10 +25,10 @@ exports.authenticate = asyncHandler(async (req, res) => {
       error.name === "TokenExpiredError" ||
       error.name === "JsonWebTokenError"
     ) {
-      return res.unAuthorized({ message: "Token is invalid or expired" });
+      return res.unauthorized({ message: "Token is invalid or expired" });
     }
 
-    return res.unAuthorized({ message: "Token is invalid or expired" });
+    return res.unauthorized({ message: "Token is invalid or expired" });
   }
 });
 const authorizeRoles = (allowedRoles) => (req, res, next) => {
@@ -41,7 +43,7 @@ const authorizeRoles = (allowedRoles) => (req, res, next) => {
   });
 };
 module.exports = {
-  isEmployee: authorizeRoles([UserRole.EMPLOYEE]),
-  isAdmin: authorizeRoles([UserRole.ADMIN]),
-  isSuperAdmin: authorizeRoles([UserRole.SUPER_ADMIN]),
+  employee: authorizeRoles([UserRole.EMPLOYEE]),
+  admin: authorizeRoles([UserRole.ADMIN]),
+  superAdmin: authorizeRoles([UserRole.SUPER_ADMIN]),
 };

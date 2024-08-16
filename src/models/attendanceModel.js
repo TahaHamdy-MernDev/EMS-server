@@ -58,27 +58,7 @@ const AttendanceModel = mongoose.model("Attendance", attendanceSchema);
 const attendanceServices = dbService(AttendanceModel);
 module.exports = { AttendanceModel, attendanceServices };
 
-/**
 
-const attendance = await AttendanceModel.findOneAndUpdate(
-  { user: userId, date: today },
-  {
-    $push: {
-      actions: {
-        type: 'CHECK_IN',
-        timestamp: new Date(),
-        location: {
-          type: "Point",
-          coordinates: [longitude, latitude]
-        },
-        details: { mood: "excited" }
-      }
-    },
-    $set: { status: EmployeeDayStatus.STARTED }
-  },
-  { upsert: true, new: true }
-);
-*/
 
 /*
 const mongoose = require('mongoose');
