@@ -42,6 +42,7 @@ const attendanceSchema = new mongoose.Schema(
       enum: Object.values(EmployeeDayStatus),
       required: true,
     },
+    totalHours: { type: Number, default: 0 },
     additionalInfo: {
       type: String,
       default: "",
@@ -57,8 +58,6 @@ attendanceSchema.index({ user: 1, date: 1 }, { unique: true });
 const AttendanceModel = mongoose.model("Attendance", attendanceSchema);
 const attendanceServices = dbService(AttendanceModel);
 module.exports = { AttendanceModel, attendanceServices };
-
-
 
 /*
 const mongoose = require('mongoose');

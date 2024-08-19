@@ -9,16 +9,16 @@ const authenticate = asyncHandler(async (req, res, next) => {
     return res.unauthorized({ message: "No token provided" });
   }
   const token = authHeader.split(" ")[1];
-  console.log(token);
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log(decoded);
     const user = await userServices.findOne({ _id: decoded.userId });
     if (!user) {
       return res.unauthorized({ message: "User no longer exists" });
     }
-    console.log(user);
-    req.user = user;
+    if (user.banned) {
+      return res.forbidden({ message: "Sorry you have been banned...!" });
+    } 
+    req.user = decoded;
     next();
   } catch (error) {
     if (

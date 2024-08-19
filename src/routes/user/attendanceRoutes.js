@@ -19,12 +19,13 @@ router.post(
   attendanceController.checkOut
 );
 router.get(
-  "/:userId/:date",
+  "/:date",
   validateRequest(getAttendanceSchema, "params"),
   attendanceController.getAttendance
 );
-// router.post('/record-action', attendanceController.recordAction);
-// router.put('/update-status', attendanceController.updateAttendanceStatus);
-// router.get('/report', attendanceController.getAttendanceReport);
+router.post("/record-action", attendanceController.recordAction);
+router.get("/report", attendanceController.getAttendanceReport);
 
 module.exports = router;
+
+// router.put('/update-status', attendanceController.updateAttendanceStatus);

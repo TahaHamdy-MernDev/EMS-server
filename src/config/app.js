@@ -7,7 +7,13 @@ const morgan = require("morgan");
 const responseHandler = require("node-response-handler");
 app.use(responseHandler);
 app.use(morgan("dev"));
-app.use(cors({ origin: process.env.CLIENT_URI, credentials: true }));
+app.use(
+  cors({
+    origin: [process.env.CLIENT_URI, "http://192.168.1.2:3000"],
+    credentials: true,
+  })
+);
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET_KEY,
@@ -21,6 +27,7 @@ app.use(express.json());
 
 app.use("/employee-management-system/v1", require("../routes"));
 app.use("*", (req, res) => {
+  console.log(req);
   return res.recordNotFound({
     message: `Cant't find route method:${req.method} url:${req.originalUrl}`,
   });

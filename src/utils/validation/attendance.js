@@ -8,12 +8,12 @@ const joiDateString = Joi.string()
   .message("Date must be in the format DD-MM-YYYY");
 
 const getAttendanceSchema = Joi.object({
-  userId: joiObjectId.required(),
+  // userId: joiObjectId.required(),
   date: joiDateString.required(),
 });
 
 const checkInAndOutSchema = Joi.object({
-  userId: Joi.string().required(),
+  // userId: Joi.string().required(),
   latitude: Joi.number().min(-90).max(90).required(),
   longitude: Joi.number().min(-180).max(180).required(),
 });

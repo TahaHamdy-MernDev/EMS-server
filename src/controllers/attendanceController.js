@@ -1,10 +1,12 @@
 const { EmployeeDayStatus } = require("../config/enums");
 const asyncHandler = require("../handlers/asyncHandler");
 const { attendanceServices } = require("../models/attendanceModel");
-const { currentDayInEgypt, currentTimeInEgypt } = require("../utils/common");
+const { currentDayInEgypt, currentTimeInEgypt, calculateTotalHours } = require("../utils/common");
 
 exports.checkIn = asyncHandler(async (req, res) => {
-  const { userId, latitude, longitude } = req.body;
+  const { latitude, longitude } = req.body;
+  const { userId } = req.user;
+  console.log(req.user);
   const today = currentDayInEgypt();
   const existingAttendance = await attendanceServices.findOne({
     user: userId,
@@ -34,7 +36,8 @@ exports.checkIn = asyncHandler(async (req, res) => {
   return res.success({ data: attendance });
 });
 exports.checkOut = asyncHandler(async (req, res) => {
-  const { userId, latitude, longitude } = req.body;
+  const { latitude, longitude } = req.body;
+  const { userId } = req.user;
   const today = currentDayInEgypt();
   const existingAttendance = await attendanceServices.findOne({
     user: userId,
@@ -55,6 +58,17 @@ exports.checkOut = asyncHandler(async (req, res) => {
       message: "You need to check in first before checking out",
     });
   }
+  const checkOutTime = currentTimeInEgypt();
+  const checkInAction = attendance.actions.find(
+    (action) => action.type === EmployeeDayStatus.CHECKED_IN
+  );
+  const totalHours = calculateTotalHours(
+    checkInAction.time,
+    checkOutTime,
+    attendance.date,
+    today
+  );
+
   const filter = { user: userId, date: today };
   const data = {
     $push: {
@@ -67,7 +81,10 @@ exports.checkOut = asyncHandler(async (req, res) => {
         },
       },
     },
-    $set: { status: EmployeeDayStatus.CHECKED_OUT },
+    $set: {
+      status: EmployeeDayStatus.CHECKED_OUT,
+      totalHours: totalHours,
+    },
   };
   const updatedAttendance = await attendanceServices.updateOne(filter, data);
   if (!updatedAttendance) {
@@ -78,8 +95,8 @@ exports.checkOut = asyncHandler(async (req, res) => {
   return res.success({ data: updatedAttendance });
 });
 exports.getAttendance = asyncHandler(async (req, res) => {
-  const { userId, date } = req.params;
-
+  const { date } = req.params;
+  const { userId } = req.user;
   const attendance = await attendanceServices.findOne({
     user: userId,
     date,
