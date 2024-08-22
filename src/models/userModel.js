@@ -39,6 +39,7 @@ const userSchema = new mongoose.Schema(
     department: { type: mongoose.Schema.Types.ObjectId, ref: "Department" },
     position: { type: mongoose.Schema.Types.ObjectId, ref: "Position" },
     branch: { type: mongoose.Schema.Types.ObjectId, ref: "Branch" },
+    deviceTokens: [{ type: String }],
   },
   { timestamps: true }
 );

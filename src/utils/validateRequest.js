@@ -11,6 +11,7 @@ const validateRequest = (schema, source = "body") => {
       stripUnknown: true,
       convert: true,
     };
+    console.log(req[source]);
     const { error, value } = schema.validate(req[source], validationOptions);
     if (error) {
       const errors = error.details.map((err) => {

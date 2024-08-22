@@ -6,12 +6,14 @@ const {
   logout,
   refreshToken,
 } = require("../controllers/authController");
+const { authenticate } = require("../middleware/authMiddleware");
 
 const router = require("express").Router();
 
 router.post("/register", validateRequest(registerSchema), register);
 router.post("/login", validateRequest(loginSchema), login);
 router.post("/refresh-token", refreshToken);
+// router.post("/save-token", authenticate, saveDeviceToken);
 router.post("/logout", logout);
 
 module.exports = router;

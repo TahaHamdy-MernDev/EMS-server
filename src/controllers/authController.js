@@ -24,10 +24,11 @@ exports.register = asyncHandler(async (req, res) => {
     });
   }
   await userServices.create(userData);
-  return res.success() ;
+  return res.success();
 });
 exports.login = asyncHandler(async (req, res) => {
-  const { phone, password } = req.body;
+  const { phone, password, deviceToken } = req.body;
+  console.log(req.body);
   const user = await userServices.findOne({ phone });
 
   if (!user) {
@@ -43,14 +44,21 @@ exports.login = asyncHandler(async (req, res) => {
 
   await saveRefreshToken(user._id, refreshToken);
 
-  res.cookie("refreshToken", refreshToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-  });
-
-  return res.success({ data: { accessToken } });
+  if (deviceToken) {
+    const tokenExists = user.deviceTokens?.includes(deviceToken);
+    if (!tokenExists) {
+      const updatedUser = await userServices.updateOne(
+        { _id: user._id },
+        { $push: { deviceTokens: deviceToken } }
+      );
+      if (!updatedUser) {
+        return res.recordNotFound({ message: "User not found..." });
+      }
+    }
+  }
+  return res.success({ data: { refreshToken, accessToken, role: user.role } });
 });
+
 exports.refreshToken = asyncHandler(async (req, res) => {
   const { refreshToken } = req.cookies;
   if (!refreshToken) {

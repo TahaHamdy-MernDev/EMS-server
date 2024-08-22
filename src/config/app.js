@@ -36,6 +36,7 @@ app.use((err, req, res, next) => {
   if (err.code === "EBADCSRFTOKEN") {
     return res.forbidden({ message: "Invalid CSRF token" });
   }
+  console.log(err);
   return res.internalServerError({ message: err.message, stack: err.stack });
 });
 module.exports = app;

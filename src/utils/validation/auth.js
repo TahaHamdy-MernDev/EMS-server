@@ -17,7 +17,7 @@ const registerSchema = Joi.object({
     .pattern(/^(010|011|012|015)\d{8}$/)
     .required()
     .messages({
-      "string.pattern.base": "Must be a valid phone number",
+      "string.pattern.base": "Provide a valid phone number",
     }),
   email: Joi.string().email().required(),
   password: Joi.string()
@@ -36,9 +36,10 @@ const loginSchema = Joi.object({
     .pattern(/^(010|011|012|015)\d{8}$/)
     .required()
     .messages({
-      "string.pattern.base": "Must be a valid phone number",
+      "string.pattern.base": "Provide valid phone number",
     }),
-  password: Joi.string().min(8).required(),
+  password: Joi.string().max(32).required(),
+  deviceToken: Joi.string().allow(''),
 });
 
 module.exports = {

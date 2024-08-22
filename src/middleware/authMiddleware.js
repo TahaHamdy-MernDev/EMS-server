@@ -17,7 +17,7 @@ const authenticate = asyncHandler(async (req, res, next) => {
     }
     if (user.banned) {
       return res.forbidden({ message: "Sorry you have been banned...!" });
-    } 
+    }
     req.user = decoded;
     next();
   } catch (error) {
@@ -43,6 +43,7 @@ const authorizeRoles = (allowedRoles) => (req, res, next) => {
   });
 };
 module.exports = {
+  authenticate,
   employee: authorizeRoles([UserRole.EMPLOYEE]),
   admin: authorizeRoles([UserRole.ADMIN]),
   superAdmin: authorizeRoles([UserRole.SUPER_ADMIN]),
